@@ -1,7 +1,5 @@
 package config
 
-const DefaultConfigName = "ipg"
-
 type VConfig interface {
 	GetInt(string) int
 	GetInt64(string) int64

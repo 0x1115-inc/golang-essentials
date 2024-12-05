@@ -47,3 +47,7 @@ func (e *EnvConfig) GetStringMap(key string) map[string]interface{} {
 	}
 	return result
 }
+
+func NewEnvConfig() *EnvConfig {
+	return &EnvConfig{}
+}
