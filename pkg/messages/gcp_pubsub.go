@@ -8,7 +8,7 @@ func init() {
 	Register(GCPProvider, NewGCPPubSub)
 }
 
-func (g *GCPPubSub) Publish(channel string, message string) error {
+func (g *GCPPubSub) Publish(channel string, message Packet) error {
 	return nil
 }
 
