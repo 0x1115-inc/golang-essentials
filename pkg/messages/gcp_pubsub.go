@@ -10,6 +10,7 @@ package messages
 
 import (
 	"context"
+
 	"cloud.google.com/go/pubsub"
 )
 
@@ -17,8 +18,17 @@ import (
 const GCPProvider = "GCPPubSubMessageSystem"
 
 type GCPPubSub struct {
-	ProjectId string
-	SubscriptionId string
+	ProjectId            string
+	subscriptionHandler  func(Packet)
+	maxSubscribeMessages int
+}
+
+type pubsubPacket struct {
+	message *pubsub.Message
+}
+
+func (p *pubsubPacket) String() string {
+	return string(p.message.Data)
 }
 
 func init() {
@@ -41,12 +51,39 @@ func (g *GCPPubSub) Publish(channel string, message Packet) error {
 	})
 
 	// Block until the result is returned
-	_, err = result.Get(ctx)	
+	_, err = result.Get(ctx)
 	return err
 }
 
-func (g *GCPPubSub) Receive(channel string) (Packet, error) {
-	return nil, nil
+func (g *GCPPubSub) Receive(channel string) error {
+	var (
+		ctx context.Context
+		cancel context.CancelFunc
+		sub *pubsub.Subscription
+		receivedMessages int = 0
+	)
+	ctx = context.Background()
+	client, err := pubsub.NewClient(ctx, g.ProjectId)
+	if err != nil {
+		return err
+	}
+	defer client.Close()
+
+	sub = client.Subscription(channel)
+	ctx, cancel = context.WithCancel(ctx)
+
+	err = sub.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
+		// Call the subscription handler
+		g.subscriptionHandler(&pubsubPacket{message: msg})
+		msg.Ack()
+
+		// Cancel the subscription after receiving a number of messages
+		receivedMessages++
+		if receivedMessages >= g.maxSubscribeMessages {
+			cancel()
+		}
+	})
+	return err
 }
 
 func (g *GCPPubSub) Subscribe(channel string) error {
@@ -59,6 +96,8 @@ func (g *GCPPubSub) Unsubscribe(channel string) error {
 
 func NewGCPPubSub(args map[string]interface{}) MessageSystem {
 	return &GCPPubSub{
-		ProjectId: args["project_id"].(string),
+		ProjectId:            args["project_id"].(string),
+		subscriptionHandler:  args["subscription_handler"].(func(Packet)),
+		maxSubscribeMessages: args["subscription_max_messages"].(int),
 	}
 }
