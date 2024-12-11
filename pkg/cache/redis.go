@@ -31,6 +31,7 @@ func (r *RedisCache) Set(key string, value interface{}) error {
 		Password: r.Password,
 		DB:       r.Database,
 	})
+	defer rdb.Close()
 
 	err := rdb.Set(ctx, key, value, 0).Err()
 	if err != nil {
@@ -49,6 +50,7 @@ func (r *RedisCache) Get(key string) (interface{}, error) {
 		Password: r.Password,
 		DB:       r.Database,
 	})
+	defer rdb.Close()
 
 	value, err := rdb.Get(ctx, key).Result()
 	if err == redis.Nil {
@@ -71,6 +73,7 @@ func (r *RedisCache) Delete(key string) error {
 		Password: r.Password,
 		DB:       r.Database,
 	})
+	defer rdb.Close()
 	
 	return rdb.Del(ctx, key).Err()
 }
