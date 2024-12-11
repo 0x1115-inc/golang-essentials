@@ -36,14 +36,14 @@ func TestGCPPubSub_Receive(t *testing.T) {
 
 	args = map[string]interface{}{
 		"project_id": projectID,
-		"subscription_handler": func(p Packet) {
-			t.Log(p.String())
-		},
-		"subscription_max_messages": 1,
-
 	}
+
 	g := NewGCPPubSub(args)
+	g.SetParameter("subscription_handler", func(p Packet) {
+		t.Log(p.String())
+	})
+	g.SetParameter("max_subscribe_messages", 1)
 
 	err := g.Receive(channel)
-	assert.NoError(t, err)
+	assert.NoError(t, err)		
 }

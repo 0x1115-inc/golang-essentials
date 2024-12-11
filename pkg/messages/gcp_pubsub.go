@@ -15,13 +15,16 @@ import (
 )
 
 // GCPProvider is the provider name for the Google Cloud Pub/Sub message system when register with the registry.
-const GCPProvider = "GCPPubSubMessageSystem"
+const (
+	GCPPubSubProvider = "GCPPubSub"
+	GCPPubSubParameterSubscriptionHandler = "subscription_handler"
+	GCPPubSubParameterMaxSubscribeMessages = "max_subscribe_messages"
+)
 
-type GCPPubSub struct {
-	ProjectId            string
-	subscriptionHandler  func(Packet)
-	maxSubscribeMessages int
+func init() {
+	Register(GCPPubSubProvider, NewGCPPubSub)
 }
+
 
 type pubsubPacket struct {
 	message *pubsub.Message
@@ -31,9 +34,12 @@ func (p *pubsubPacket) String() string {
 	return string(p.message.Data)
 }
 
-func init() {
-	Register(GCPProvider, NewGCPPubSub)
+type GCPPubSub struct {
+	ProjectId            string
+	subscriptionHandler  func(Packet)
+	maxSubscribeMessages int
 }
+
 
 func (g *GCPPubSub) Publish(channel string, message Packet) error {
 	ctx := context.Background()
@@ -86,18 +92,20 @@ func (g *GCPPubSub) Receive(channel string) error {
 	return err
 }
 
-func (g *GCPPubSub) Subscribe(channel string) error {
-	return nil
+func (g *GCPPubSub) SetParameter(key string, value interface{}) {
+	switch key {
+	case GCPPubSubParameterSubscriptionHandler:
+		g.subscriptionHandler = value.(func(Packet))	
+	case GCPPubSubParameterMaxSubscribeMessages:
+		g.maxSubscribeMessages = value.(int)
+	}
 }
 
-func (g *GCPPubSub) Unsubscribe(channel string) error {
-	return nil
-}
 
 func NewGCPPubSub(args map[string]interface{}) MessageSystem {
 	return &GCPPubSub{
 		ProjectId:            args["project_id"].(string),
-		subscriptionHandler:  args["subscription_handler"].(func(Packet)),
-		maxSubscribeMessages: args["subscription_max_messages"].(int),
+		subscriptionHandler:  nil,
+		maxSubscribeMessages: 1,
 	}
 }
