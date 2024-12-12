@@ -1,3 +1,5 @@
+// Copyright 2024 0x1115 Inc
+
 package messages
 
 import (
@@ -23,6 +25,10 @@ func (p PacketTest) GetAttribute(key string) interface{} {
 }
 
 func (p PacketTest) RemoveAttribute(key string) {
+	// Do nothing
+}
+
+func (p PacketTest) SetData(data interface{}) {
 	// Do nothing
 }
 

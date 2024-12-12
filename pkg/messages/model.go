@@ -1,3 +1,5 @@
+// Copyright 2024 0x1115 Inc
+
 package messages
 
 // Packet is the interface that defines the methods that a message packet should implement
@@ -9,4 +11,5 @@ type Packet interface {
 	AddAttribute(key string, value interface{})
 	GetAttribute(key string) interface{}
 	RemoveAttribute(key string)
+	SetData(data interface{})
 }

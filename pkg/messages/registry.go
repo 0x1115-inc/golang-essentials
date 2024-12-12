@@ -1,3 +1,5 @@
+// Copyright 2024 0x1115 Inc
+
 package messages
 
 type FactoryFunction func(map[string]interface{}) MessageSystem

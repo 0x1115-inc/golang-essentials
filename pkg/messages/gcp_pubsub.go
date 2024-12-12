@@ -17,7 +17,6 @@ import (
 // GCPProvider is the provider name for the Google Cloud Pub/Sub message system when register with the registry.
 const (
 	GCPPubSubProvider = "GCPPubSub"
-	GCPPubSubParameterSubscriptionHandler = "subscription_handler"
 	GCPPubSubParameterMaxSubscribeMessages = "max_subscribe_messages"
 )
 
@@ -43,6 +42,10 @@ func (p *pubsubPacket) GetAttribute(key string) interface{} {
 }
 
 func (p *pubsubPacket) RemoveAttribute(key string) {
+	// Do nothing
+}
+
+func (p *pubsubPacket) SetData(data interface{}) {
 	// Do nothing
 }
 
@@ -106,7 +109,7 @@ func (g *GCPPubSub) Receive(channel string) error {
 
 func (g *GCPPubSub) SetParameter(key string, value interface{}) {
 	switch key {
-	case GCPPubSubParameterSubscriptionHandler:
+	case ParameterSubscriptionHandler:
 		g.subscriptionHandler = value.(func(Packet))	
 	case GCPPubSubParameterMaxSubscribeMessages:
 		g.maxSubscribeMessages = value.(int)
