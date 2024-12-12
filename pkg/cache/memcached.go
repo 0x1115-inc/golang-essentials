@@ -2,6 +2,8 @@ package cache
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/bradfitz/gomemcache/memcache"
 )
@@ -30,7 +32,7 @@ func (m MemcachedCache) Strings() []string {
 }
 
 func (m *MemcachedCache) Set(key string, value interface{}) error {
-	memcacheInstance := memcache.New(m.Strings()...)	
+	memcacheInstance := memcache.New(m.Strings()...)
 	defer memcacheInstance.Close()
 
 	return memcacheInstance.Set(&memcache.Item{
@@ -40,7 +42,7 @@ func (m *MemcachedCache) Set(key string, value interface{}) error {
 }
 
 func (m *MemcachedCache) Get(key string) (interface{}, error) {
-	memcacheInstance := memcache.New(m.Strings()...)	
+	memcacheInstance := memcache.New(m.Strings()...)
 	defer memcacheInstance.Close()
 
 	item, err := memcacheInstance.Get(key)
@@ -49,13 +51,13 @@ func (m *MemcachedCache) Get(key string) (interface{}, error) {
 			Code:    CacheErrorNotFound,
 			Message: "Key not found",
 		}
-	}	
+	}
 
 	return item, err
 }
 
 func (m *MemcachedCache) Delete(key string) error {
-	memcacheInstance := memcache.New(m.Strings()...)	
+	memcacheInstance := memcache.New(m.Strings()...)
 	defer memcacheInstance.Close()
 
 	return memcacheInstance.Delete(key)
@@ -64,13 +66,21 @@ func (m *MemcachedCache) Delete(key string) error {
 func NewMemcachedCache(args map[string]interface{}) Cache {
 	var nodes []MemcachedCacheNode
 
-	for _, node := range args["nodes"].([]interface{}) {
-		n := node.(map[string]interface{})
+	for _, node := range strings.Split(args["nodes"].(string), "|") {
+		nodeParts := strings.Split(node, ":")
+
+		// Convert the port to int
+		port, err := strconv.Atoi(nodeParts[1])
+		if err != nil {
+			return nil
+		}
+
 		nodes = append(nodes, MemcachedCacheNode{
-			Host: n["host"].(string),
-			Port: n["port"].(int),
+			Host: nodeParts[0],
+			Port: port,
 		})
 	}
+	
 	return &MemcachedCache{
 		Connections: nodes,
 	}
