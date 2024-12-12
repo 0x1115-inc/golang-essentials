@@ -34,6 +34,18 @@ func (p *pubsubPacket) String() string {
 	return string(p.message.Data)
 }
 
+func (p *pubsubPacket) AddAttribute(key string, value interface{}) {
+	// Do nothing
+}
+
+func (p *pubsubPacket) GetAttribute(key string) interface{} {
+	return nil
+}
+
+func (p *pubsubPacket) RemoveAttribute(key string) {
+	// Do nothing
+}
+
 type GCPPubSub struct {
 	ProjectId            string
 	subscriptionHandler  func(Packet)

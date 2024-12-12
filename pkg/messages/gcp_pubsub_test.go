@@ -14,6 +14,18 @@ func (p PacketTest) String() string {
 	return p.Data
 }
 
+func (p PacketTest) AddAttribute(key string, value interface{}) {
+	// Do nothing
+}
+
+func (p PacketTest) GetAttribute(key string) interface{} {
+	return nil
+}
+
+func (p PacketTest) RemoveAttribute(key string) {
+	// Do nothing
+}
+
 func TestGCPPubSub_Publish(t *testing.T) {	
 	projectID := os.Getenv("PROJECT_ID")
 	t.Log("Project ID: ", projectID)
