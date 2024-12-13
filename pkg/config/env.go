@@ -6,7 +6,13 @@ import (
 	"strings"
 )
 
-type EnvConfig struct{}
+const (
+	EnvDefaultDelimiter = ","
+)
+
+type EnvConfig struct{
+	delimiter string
+}
 
 func (e *EnvConfig) GetInt(key string) int {
 	val, _ := strconv.Atoi(os.Getenv(key))
@@ -33,12 +39,12 @@ func (e *EnvConfig) GetString(key string) string {
 }
 
 func (e *EnvConfig) GetStringSlice(key string) []string {
-	return strings.Split(os.Getenv(key), ",")
+	return strings.Split(os.Getenv(key), e.delimiter)
 }
 
 func (e *EnvConfig) GetStringMap(key string) map[string]interface{} {
 	result := make(map[string]interface{})
-	pairs := strings.Split(os.Getenv(key), ",")
+	pairs := strings.Split(os.Getenv(key), e.delimiter)
 	for _, pair := range pairs {
 		kv := strings.SplitN(pair, "=", 2)
 		if len(kv) == 2 {
@@ -49,5 +55,7 @@ func (e *EnvConfig) GetStringMap(key string) map[string]interface{} {
 }
 
 func NewEnvConfig() *EnvConfig {
-	return &EnvConfig{}
+	return &EnvConfig{
+		delimiter: EnvDefaultDelimiter,
+	}
 }
