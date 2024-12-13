@@ -1,46 +1,36 @@
 // Copyright 2024 0x1115 Inc
 
-package messages
+package messagesystem
 
 import (
 	"os"
 	"testing"
 
+	"github.com/0x1115-inc/golang-essentials/pkg/messagesystem/message"
 	"github.com/stretchr/testify/assert"
 )
-type PacketTest struct {
-	Data string
-}
 
-func (p PacketTest) String() string {
-	return p.Data
-}
-
-func (p PacketTest) AddAttribute(key string, value interface{}) {
-	// Do nothing
-}
-
-func (p PacketTest) GetAttribute(key string) interface{} {
-	return nil
-}
-
-func (p PacketTest) RemoveAttribute(key string) {
-	// Do nothing
-}
-
-func (p PacketTest) SetData(data interface{}) {
-	// Do nothing
-}
-
-func TestGCPPubSub_Publish(t *testing.T) {	
+func TestGCPPubSub_Publish(t *testing.T) {
 	projectID := os.Getenv("PROJECT_ID")
 	t.Log("Project ID: ", projectID)
 	channel := "test-topic"
-	message := PacketTest{Data: "test-message-from-golang-essentials"}
 
+	packet := pubsubPacket{
+		Headers: map[string]message.IValue{
+			"source":      "header-source",
+			"messageType": "header-message-type",
+		},
+		Attributes: map[string]message.IValue{
+			"attr1": "Attribute1",
+			"attr2": "Attribute2",
+		},
+		Data: &pubsubPacketData{
+			"test-message-from-golang-essentials",
+		},
+	}
 	g := &GCPPubSub{ProjectId: projectID}
 
-	err := g.Publish(channel, message)
+	err := g.Publish(channel, &packet)
 	assert.NoError(t, err)
 }
 
@@ -57,11 +47,11 @@ func TestGCPPubSub_Receive(t *testing.T) {
 	}
 
 	g := NewGCPPubSub(args)
-	g.SetParameter("subscription_handler", func(p Packet) {
+	g.SetParameter("subscription_handler", func(p message.IPacket) {
 		t.Log(p.String())
 	})
 	g.SetParameter("max_subscribe_messages", 1)
 
 	err := g.Receive(channel)
-	assert.NoError(t, err)		
+	assert.NoError(t, err)
 }
