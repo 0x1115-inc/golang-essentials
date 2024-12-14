@@ -127,11 +127,12 @@ func (g *GCPPubSub) Publish(channel string, packet message.IPacket) error {
 	// Setup message
 	// Convert the packet attributes to a map of string
 	packetAttr = packet.GetAttributes()
-
 	if packetAttr != nil {
 		attributes = make(map[string]string)
-		for key, value := range packetAttr {
-			attributes[key] = value.(string)
+		for key, value := range packetAttr {		
+			// Convert the value to string
+			attributes[key] = fmt.Sprintf("%v", value)
+		
 		}
 	}
 
@@ -141,8 +142,9 @@ func (g *GCPPubSub) Publish(channel string, packet message.IPacket) error {
 		if attributes == nil {
 			attributes = make(map[string]string)
 		}
-		for key, value := range packetHeaders {
-			attributes[fmt.Sprintf("%s%s", GCPPubSubMessageHeaderPrefix, key)] = value.(string)
+		for key, value := range packetHeaders {			
+			// Convert the value to string
+			attributes[fmt.Sprintf("%s%s", GCPPubSubMessageHeaderPrefix, key)] = fmt.Sprintf("%v", value)			
 		}
 	}
 
