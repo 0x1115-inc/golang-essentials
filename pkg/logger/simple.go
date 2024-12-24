@@ -6,14 +6,6 @@ import "log"
 
 // SimpleLogger is the simplest struct that defines the basic methods for a logger
 
-const (
-	LevelDebug = 0
-	LevelInfo  = 1
-	LevelWarn  = 2
-	LevelError = 3
-	LevelFatal = 4
-)
-
 type SimpleLogger struct {
 	Level int
 }

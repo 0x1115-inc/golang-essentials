@@ -1,5 +1,13 @@
 package logger
 
+const (
+	LevelDebug = 0
+	LevelInfo  = 1
+	LevelWarn  = 2
+	LevelError = 3
+	LevelFatal = 4
+)
+
 type VLogger interface {
 	Debugln(args ...interface{})
 	Infoln(args ...interface{})
