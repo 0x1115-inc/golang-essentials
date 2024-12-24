@@ -1,8 +1,9 @@
 package cache
 
 import (
-	"fmt"
 	"context"
+	"fmt"
+	"strconv"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -59,7 +60,7 @@ func (r *RedisCache) Get(key string) (interface{}, error) {
 			Message: "Key not found",
 		}
 	}
-	
+
 	return value, err
 }
 
@@ -74,15 +75,26 @@ func (r *RedisCache) Delete(key string) error {
 		DB:       r.Database,
 	})
 	defer rdb.Close()
-	
+
 	return rdb.Del(ctx, key).Err()
 }
 
 func NewRedisCache(args map[string]interface{}) Cache {
+	// Parameter conversion
+	port, err := strconv.ParseInt(fmt.Sprintf("%s", args["port"]), 10, 32)
+	if err != nil {
+		return nil
+	}
+
+	database, err := strconv.ParseInt(fmt.Sprintf("%s", args["db"]), 10, 32)
+	if err != nil {
+		return nil
+	}
+
 	return &RedisCache{
-		Hostname: args["hostname"].(string),
-		Port:     args["port"].(int),
+		Hostname: args["host"].(string),
+		Port:     int(port),
 		Password: args["password"].(string),
-		Database: args["database"].(int),
+		Database: int(database),
 	}
 }
