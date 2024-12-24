@@ -136,7 +136,7 @@ func (g *GCPPubSub) Publish(channel string, packet message.IPacket) error {
 		}
 	}
 
-	// Convert the packet header as the speical attribute with prefix defined in constant
+	// Convert the packet header as the special attribute with prefix defined in constant
 	packetHeaders := packet.GetHeaders()
 	if packetHeaders != nil {
 		if attributes == nil {
